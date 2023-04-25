@@ -8,7 +8,7 @@ To follow along, ensure to use the latest streamlit version by running `pip inst
 [![YouTube Video](https://img.youtube.com/vi/YClmpnpszq8/0.jpg)](https://youtu.be/YClmpnpszq8)
 
 ## Requirements
-Install the dependecies with pip
+Install the dependecies with pip command
 ```
 streamlit==1.11.0
 ```
@@ -19,13 +19,3 @@ streamlit==1.11.0
 streamlit run 1_🤓_Homepage.py
 ```
 
-## About Me
-- Sven from Coding Is Fun
-- YouTube: https://youtube.com/c/CodingIsFun
-- Website: https://pythonandvba.com
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/X7X47Q0EG)
-
-## Feedback
-If you have any feedback, please reach out to me at contact@pythonandvba.com
-![Logo](https://www.pythonandvba.com/banner-img)
