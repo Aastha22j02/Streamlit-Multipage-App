@@ -1,0 +1,88 @@
+stages:
+    - install
+    - uninstall
+
+install-traefik:
+    stage: install
+    image: docker:latest
+    when: manual
+    tags:
+        - shell
+        
+    before_script:
+        - export KUBECONFIG=rancherconf.yaml
+        - echo KUBECONFIG>>~/.kube/config
+    script:
+        - kubectl create ns traefik-v2
+        - kubectl create ns metallb
+        - helm repo add metallb https://metallb.github.io/metallb
+        - helm install metallb metallb/metallb -n metallb
+        - sleep 60
+        - kubectl create -f metallb-ip.yaml --namespace metallb
+        - kubectl create -f metallb-ad.yaml --namespace metallb
+        - kubectl apply -k "github.com/kubernetes-sigs/gateway-api/config/crd?ref=v0.4.0" -n traefik-v2
+
+        #- kubectl delete ns traefik-v2
+        - helm repo add traefik https://traefik.github.io/charts    
+        - helm repo update
+        #- kubectl create ns traefik-v2
+       # - helm install --namespace=traefik-v2 traefik traefik/traefik --values values.yaml 
+       # - screen -d -m kubectl port-forward $(kubectl get pods --selector "app.kubernetes.io/name=traefik" --output=name -n traefik-v2) -n traefik-v2 9999:9999
+        #- helm repo add traefik https://helm.traefik.io/traefik
+        #- helm repo update
+       # - kubectl create ns traefik-v2
+        - helm install traefik --set experimental.kubernetesGateway.enabled=true traefik/traefik --namespace traefik-v2
+        - sleep 1m
+        #- sudo netstat -lnp | grep :'9000'
+        #- sudo killall -9 149332
+
+       # - screen -m -d kubectl port-forward $(kubectl get pods --selector "app.kubernetes.io/name=traefik" --output=name -n traefik-v2) 9000:9000 -n traefik-v2
+        #- sleep 5m
+       # - kubectl create -f dashboard.yaml -n traefik-v2
+        - kubectl create -f dashboard.yaml -n traefik-v2
+        - kubectl get svc -n traefik-v2
+
+    # needs:
+    #     project: traefik/infrastructure-rke
+    #     job: Deploy:apply
+    #     ref: infra-rke
+    #     artifacts: true 
+
+
+     
+               
+
+
+uinstall-traefik:
+    stage: uninstall
+    when: manual
+    tags:
+        - shell
+    before_script:
+        - export KUBECONFIG=rancherconf.yaml
+        - echo KUBECONFIG>>~/.kube/config
+    script:    
+        - helm repo update
+      
+        #- helm uninstall --namespace=traefik-v2 traefik 
+        - helm uninstall traefik -n traefik-v2
+       # - killall screen
+        
+        
+        - kubectl delete -f metallb-ip.yaml --namespace metallb
+        - kubectl delete -f metallb-ad.yaml --namespace metallb
+        - helm uninstall metallb -n metallb
+        - kubectl delete namespace metallb
+        - kubectl delete namespace traefik-v2
+
+    # needs:
+    #     project: traefik/infrastructure-rke
+    #     job: Deploy:apply
+    #     ref: infra-rke
+    #     artifacts: true 
+
+
+
+
+
+
